@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> {
 
     if (Platform.isAndroid) {
 
-      _installedApps = await AppAvailability.getInstalledApps();
+      _installedApps = await AppAvailability.getInstalledApps(10);
 
       print(await AppAvailability.checkAvailability("com.android.chrome"));
       // Returns: Map<String, String>{app_name: Chrome, package_name: com.android.chrome, versionCode: null, version_name: 55.0.2883.91}

@@ -57,6 +57,9 @@ public class AppAvailability implements FlutterPlugin, MethodCallHandler, Activi
   @Override
   public void onMethodCall(MethodCall call, @NonNull Result result) {
     String uriSchema;
+    String query;
+    Integer limit;
+
     switch (call.method) {
       case "checkAvailability":
         uriSchema = Objects.requireNonNull(call.argument("uri")).toString();
@@ -64,12 +67,14 @@ public class AppAvailability implements FlutterPlugin, MethodCallHandler, Activi
         break;
 
       case "getInstalledApps":
-        result.success(getInstalledApps());
+        limit = (Integer) call.argument("limit");
+        result.success(getInstalledApps(limit));
         break;
 
       case "getInstalledAppsByQuery":
-        String query = call.argument("query").toString();
-        result.success(getInstalledAppsByQuery(query));
+        query = call.argument("query").toString();
+        limit = call.argument("limit");
+        result.success(getInstalledAppsByQuery(query, limit));
         break;
 
       case "isAppEnabled":
@@ -99,7 +104,7 @@ public class AppAvailability implements FlutterPlugin, MethodCallHandler, Activi
   }
 
   @TargetApi(Build.VERSION_CODES.DONUT)
-  private List<Map<String, Object>> getInstalledApps() {
+  private List<Map<String, Object>> getInstalledApps(Integer limit) {
     PackageManager packageManager = activity.getPackageManager();
     List<PackageInfo> apps = packageManager.getInstalledPackages(0);
     List<Map<String, Object>> installedApps = new ArrayList<>(apps.size());
@@ -112,13 +117,17 @@ public class AppAvailability implements FlutterPlugin, MethodCallHandler, Activi
 
       Map<String, Object> map = this.convertPackageInfoToJson(pInfo);
       installedApps.add(map);
+
+      if (installedApps.size() == limit) {
+        break;
+      }
     }
 
     return installedApps;
   }
 
   @TargetApi(Build.VERSION_CODES.DONUT)
-  private List<Map<String, Object>> getInstalledAppsByQuery(String query) {
+  private List<Map<String, Object>> getInstalledAppsByQuery(String query, Integer limit) {
     PackageManager packageManager = activity.getPackageManager();
     List<PackageInfo> apps = packageManager.getInstalledPackages(0);
     List<Map<String, Object>> installedApps = new ArrayList<>(apps.size());
@@ -137,6 +146,10 @@ public class AppAvailability implements FlutterPlugin, MethodCallHandler, Activi
 
       Map<String, Object> map = this.convertPackageInfoToJson(pInfo);
       installedApps.add(map);
+
+      if (installedApps.size() == limit) {
+        break;
+      }
     }
 
     return installedApps;

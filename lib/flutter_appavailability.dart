@@ -59,8 +59,10 @@ class AppAvailability {
   ///
   /// Get the list of all installed apps, where
   /// each app has a form like [checkAvailability()].
-  static Future<List<Map<String, String?>>> getInstalledApps() async {
-    List<dynamic>? apps = await _channel.invokeMethod("getInstalledApps");
+  static Future<List<Map<String, String?>>> getInstalledApps(int? limit) async {
+    Map<String, dynamic> args = <String, dynamic>{};
+    args.putIfAbsent('limit', () => limit);
+    List<dynamic>? apps = await _channel.invokeMethod("getInstalledApps", args);
     if (apps != null && apps is List) {
       List<Map<String, String?>> list = [];
       for (var app in apps) {
@@ -85,9 +87,10 @@ class AppAvailability {
   ///
   /// Get the list of all installed apps, where
   /// each app has a form like [checkAvailability()].
-  static Future<List<Map<String, String?>>> getInstalledAppsByQuery(String query) async {
+  static Future<List<Map<String, String?>>> getInstalledAppsByQuery(String query, int? limit) async {
     Map<String, dynamic> args = <String, dynamic>{};
     args.putIfAbsent('query', () => query);
+    args.putIfAbsent('limit', () => limit);
     List<dynamic>? apps = await _channel.invokeMethod("getInstalledAppsByQuery", args);
     if (apps != null && apps is List) {
       List<Map<String, String?>> list = [];
