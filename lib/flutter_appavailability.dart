@@ -19,19 +19,21 @@ class AppAvailability {
   ///   "app_name": "",
   ///   "package_name": "",
   ///   "versionCode": "",
-  ///   "version_name": ""
+  ///   "version_name": "",
+  ///   "app_icon": ""
   /// }
   static Future<Map<String, String?>?> checkAvailability(String uri) async {
     Map<String, dynamic> args = <String, dynamic>{};
     args.putIfAbsent('uri', () => uri);
 
     if (Platform.isAndroid) {
-      Map<String, String> app = await _channel.invokeMethod("checkAvailability", args);
+      Map<dynamic, dynamic> app = await _channel.invokeMethod("checkAvailability", args);
       return {
         "app_name": app["app_name"],
         "package_name": app["package_name"],
         "versionCode": app["versionCode"],
-        "version_name": app["version_name"]
+        "version_name": app["version_name"],
+        "app_icon": app["app_icon"]
       };
     }
     else if (Platform.isIOS) {
@@ -45,7 +47,8 @@ class AppAvailability {
         "app_name": "",
         "package_name": uri,
         "versionCode": "",
-        "version_name": ""
+        "version_name": "",
+        "app_icon": ""
       };
     }
 
@@ -66,7 +69,36 @@ class AppAvailability {
             "app_name": app["app_name"],
             "package_name": app["package_name"],
             "versionCode": app["versionCode"],
-            "version_name": app["version_name"]
+            "version_name": app["version_name"],
+            "app_icon": app["app_icon"]
+          });
+        }
+      }
+
+      return list;
+    }
+
+    return [];
+  }
+
+  /// Only for **Android**.
+  ///
+  /// Get the list of all installed apps, where
+  /// each app has a form like [checkAvailability()].
+  static Future<List<Map<String, String?>>> getInstalledAppsByQuery(String query) async {
+    Map<String, dynamic> args = <String, dynamic>{};
+    args.putIfAbsent('query', () => query);
+    List<dynamic>? apps = await _channel.invokeMethod("getInstalledAppsByQuery", args);
+    if (apps != null && apps is List) {
+      List<Map<String, String?>> list = [];
+      for (var app in apps) {
+        if (app is Map) {
+          list.add({
+            "app_name": app["app_name"],
+            "package_name": app["package_name"],
+            "versionCode": app["versionCode"],
+            "version_name": app["version_name"],
+            "app_icon": app["app_icon"]
           });
         }
       }
